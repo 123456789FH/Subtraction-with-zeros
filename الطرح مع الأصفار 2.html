@@ -1,0 +1,710 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>الطرح مع الأصفار</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: sticky tab header, one centered column; lesson stage and quiz+leaderboard grid. Theme: watermelon (rind green, melon red, seed-yellow ones). */
+:root{
+  --bg:#f2f6ef; --surface:#ffffff; --surface2:#e8f1e5; --fg:#14281c; --muted:#56695c; --line:#d3e0d4;
+  --melon:#e0334f; --melon-soft:#fde4e8; --rind:#17794a; --rind-soft:#d6efdf; --sun:#f2a81d; --sun-soft:#fdf0cf;
+  --ok:#17794a; --bad:#c2312f; --bad-soft:#fde8e7; --shadow:0 6px 22px rgba(20,40,28,.09);
+  --display:'Lalezar','Tajawal',system-ui,sans-serif; --body:'Tajawal',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1a13; --surface:#162619; --surface2:#1d3223; --fg:#e8f2ea; --muted:#9db3a3; --line:#2a4231;
+  --melon:#ff6b82; --melon-soft:#3a1d26; --rind:#4cc98a; --rind-soft:#17372a; --sun:#ffc24a; --sun-soft:#3b3015;
+  --ok:#4cc98a; --bad:#ff7a76; --bad-soft:#3b1f1f; --shadow:0 6px 22px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1a13; --surface:#162619; --surface2:#1d3223; --fg:#e8f2ea; --muted:#9db3a3; --line:#2a4231;
+  --melon:#ff6b82; --melon-soft:#3a1d26; --rind:#4cc98a; --rind-soft:#17372a; --sun:#ffc24a; --sun-soft:#3b3015;
+  --ok:#4cc98a; --bad:#ff7a76; --bad-soft:#3b1f1f; --shadow:0 6px 22px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.7 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+button,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.25;margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto}
+bdi{unicode-bidi:isolate}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));border-bottom:3px solid transparent;border-image:linear-gradient(to left,var(--rind),var(--melon)) 1}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:8px}
+.brand{font-family:var(--display);font-size:1.25rem;display:flex;align-items:center;gap:8px}
+.brand svg{width:34px;height:20px}
+.tabs{display:flex;gap:6px}
+.tab-btn{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tab-btn[aria-selected="true"]{background:var(--rind);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab-btn[aria-selected="true"]{color:#0e1a13}}
+:root[data-theme="dark"] .tab-btn[aria-selected="true"]{color:#0e1a13}
+
+main{padding-top:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+.stack{display:grid;gap:20px}
+.eyebrow{font-weight:700;font-size:.85rem;letter-spacing:.04em;color:var(--melon)}
+.sec-title{font-size:1.6rem;margin-bottom:6px}
+.lead{color:var(--muted);max-width:62ch}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;background:var(--rind);color:#fff;transition:transform .15s}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#0e1a13}}
+:root[data-theme="dark"] .btn{color:#0e1a13}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:var(--surface2);color:var(--fg)}
+.btn.melon{background:var(--melon);color:#fff}
+.btn[disabled]{opacity:.4;cursor:default;transform:none}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:center;background:linear-gradient(135deg,var(--rind-soft),var(--surface));}
+.hero h1{font-size:clamp(2rem,6vw,3.2rem);margin:6px 0 10px}
+.hero svg{width:100%;max-width:300px;justify-self:center}
+@media (max-width:640px){.hero{grid-template-columns:1fr}}
+
+/* hook bars */
+.bars{display:grid;gap:12px;margin-top:14px}
+.bar-row{display:grid;gap:4px}
+.bar-lab{font-weight:700;font-size:.95rem}
+.bar{height:38px;border-radius:10px;background:var(--surface2);display:flex;overflow:hidden}
+.seg{display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;transition:width .8s}
+.seg.a{background:var(--rind)}
+.seg.b{background:var(--melon)}
+.seg.q{background:repeating-linear-gradient(45deg,var(--sun-soft),var(--sun-soft) 8px,var(--surface2) 8px,var(--surface2) 16px);color:var(--fg);border:2px dashed var(--sun);border-radius:10px}
+.reveal-ans{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--sun-soft);font-weight:700}
+
+/* split demos */
+.split-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.split-grid{grid-template-columns:1fr}}
+.demo{border:1px dashed var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;justify-items:start}
+.demo .st{min-height:96px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.demo .cap{font-weight:700;color:var(--muted)}
+
+/* blocks */
+.blk{display:inline-block;flex:none}
+.blk.h{width:clamp(26px,7vw,40px);aspect-ratio:1;background:var(--melon);border-radius:4px;background-image:linear-gradient(var(--melon-soft) 1px,transparent 1px),linear-gradient(90deg,var(--melon-soft) 1px,transparent 1px);background-size:25% 25%;opacity:.95}
+.blk.t{width:9px;height:clamp(30px,8vw,38px);background:var(--rind);border-radius:3px}
+.blk.o{width:13px;height:13px;background:var(--sun);border-radius:50%}
+.blk.big.h{width:84px}
+.blk.new{animation:pop .55s both}
+.blk.gone{opacity:.3;filter:grayscale(1);outline:2px dashed var(--bad);outline-offset:1px}
+@keyframes pop{from{transform:scale(.2);opacity:0}60%{transform:scale(1.25)}to{transform:scale(1);opacity:1}}
+@keyframes drop{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+
+/* stepper */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 14px;font-weight:700;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:#1b1500}
+.stepper{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.stepper{grid-template-columns:1fr}}
+.vgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 34px;align-items:end;justify-items:center;row-gap:4px;column-gap:6px;background:var(--surface2);border-radius:16px;padding:14px 10px}
+.hd{font-weight:800;font-size:.9rem;padding:2px 12px;border-radius:999px}
+.hd.h{background:var(--melon-soft);color:var(--melon)}
+.hd.t{background:var(--rind-soft);color:var(--rind)}
+.hd.o{background:var(--sun-soft);color:#a06a00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hd.o{color:var(--sun)}}
+:root[data-theme="dark"] .hd.o{color:var(--sun)}
+.hd.flash{animation:drop .5s}
+.bl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-content:flex-end;min-height:84px;width:100%;padding:6px 2px}
+.bl.done{opacity:.85}
+.zero{font-family:var(--display);font-size:1.4rem;color:var(--muted);align-self:center}
+.dg{font-family:var(--display);font-size:clamp(2rem,9vw,3rem);line-height:1.1;font-variant-numeric:tabular-nums;position:relative;min-height:1.1em;display:flex;align-items:flex-end;gap:6px}
+.dg .was{font-size:.5em;color:var(--bad);text-decoration:line-through;align-self:flex-start}
+.dg.flash{animation:drop .5s}
+.dg.sign{font-size:2.2rem;color:var(--melon);justify-self:center}
+.rule{grid-column:1/-1;height:4px;background:var(--fg);border-radius:2px;width:100%;opacity:.8}
+.resd{color:var(--rind)}
+.resd .pop{animation:pop .5s both}
+.vgrid.final .resd{color:var(--melon)}
+.narr{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:120px;font-size:1.1rem}
+.narr .tag{display:inline-block;background:var(--melon);color:#fff;border-radius:8px;padding:0 10px;font-weight:800;font-size:.85rem;margin-inline-end:8px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.dot{width:14px;height:14px;border-radius:50%;border:0;background:var(--line);cursor:pointer;padding:0}
+.dot.on{background:var(--melon);transform:scale(1.25)}
+.dot.past{background:var(--rind)}
+.stepcount{margin-top:8px;color:var(--muted);font-weight:700;font-size:.9rem}
+.custom{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.custom input{width:92px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);text-align:center}
+.msg-err{color:var(--bad);font-weight:700;min-height:1.6em}
+
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.rules{grid-template-columns:1fr}}
+.rule-card{border-radius:14px;padding:14px;background:var(--surface2);display:grid;gap:4px}
+.rule-card b{font-family:var(--display);font-weight:400;font-size:1.15rem}
+.cta{display:flex;justify-content:center;padding:10px 0 4px}
+.cta .btn{font-size:1.2rem;padding:14px 32px}
+
+/* quiz */
+.quiz-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.quiz-grid{grid-template-columns:1fr}}
+.field{display:grid;gap:8px;margin:14px 0}
+.field input{padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-size:1.15rem}
+.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:800;margin-bottom:10px}
+.pill{background:var(--sun-soft);border-radius:999px;padding:2px 14px}
+.prog{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;margin-bottom:16px}
+.prog i{display:block;height:100%;background:linear-gradient(to left,var(--rind),var(--melon));border-radius:6px;transition:width .4s}
+.qlead{font-size:1.2rem;font-weight:700;margin-bottom:10px}
+.vq{width:fit-content;margin:6px auto 16px;font-family:var(--display);font-size:2.4rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.vq .r{display:grid;grid-template-columns:34px auto;justify-items:end}
+.vq .mi{color:var(--melon);justify-self:center}
+.vq .ln{height:4px;background:var(--fg);border-radius:2px;margin-block:4px}
+.vq .qm{color:var(--sun)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:480px){.opts{grid-template-columns:1fr}}
+.opt{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;font-size:1.3rem;font-weight:800;cursor:pointer;transition:transform .15s,border-color .15s;text-align:center}
+.opt:hover:not([disabled]){transform:translateY(-2px);border-color:var(--rind)}
+.opt.ok{background:var(--rind-soft);border-color:var(--ok);color:var(--ok)}
+.opt.no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.opt[disabled]{cursor:default}
+.fb{margin-top:16px;border-radius:14px;padding:14px 16px;animation:drop .4s both;display:grid;gap:8px}
+.fb.good{background:var(--rind-soft)}
+.fb.bad{background:var(--sun-soft)}
+.fb h3{font-size:1.25rem}
+.fb .sol{background:var(--surface);border-radius:10px;padding:10px 12px;font-size:.98rem}
+.board h2{font-size:1.4rem;margin-bottom:10px}
+.leader{background:var(--sun-soft);border-radius:12px;padding:10px 12px;font-weight:800;margin-bottom:10px}
+.rows{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rows li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--surface2)}
+.rows li.me{outline:2px solid var(--melon)}
+.rk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--surface);border:1px solid var(--line)}
+.rk.r1{background:var(--sun);border-color:var(--sun);color:#1b1500}
+.rk.r2{background:#c9d3cc;color:#1b2a20;border-color:#c9d3cc}
+.rk.r3{background:#d99a6c;color:#2a1706;border-color:#d99a6c}
+.nm{overflow-wrap:anywhere;font-weight:700}
+.sc{font-family:var(--display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);padding:6px 2px}
+.done-box{text-align:center;display:grid;gap:12px;justify-items:center}
+.big-score{font-family:var(--display);font-size:4rem;line-height:1;color:var(--melon)}
+.stars{display:flex;gap:6px}
+.stars svg{width:44px;height:44px}
+.miss{text-align:right;width:100%;display:grid;gap:6px;margin-top:4px}
+.miss div{background:var(--surface2);border-radius:10px;padding:8px 12px}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* exit ticket */
+.ticket{max-width:640px;margin:0 auto;background:var(--surface);border:2px solid var(--rind);border-radius:22px;position:relative;box-shadow:var(--shadow);overflow:hidden}
+.t-top{background:var(--rind);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .t-top{color:#0e1a13}}
+:root[data-theme="dark"] .t-top{color:#0e1a13}
+.t-top h2{font-size:1.6rem}
+.t-top input{background:rgba(255,255,255,.2);border:0;border-bottom:2px solid currentColor;color:inherit;padding:4px 8px;border-radius:6px;width:150px;font-weight:700}
+.t-top input::placeholder{color:inherit;opacity:.7}
+.t-body{padding:22px;display:grid;gap:18px}
+.perf{border-top:3px dashed var(--line);position:relative}
+.perf::before,.perf::after{content:"";position:absolute;top:-14px;width:24px;height:24px;border-radius:50%;background:var(--bg);border:2px solid var(--rind)}
+.perf::before{inset-inline-start:-14px}
+.perf::after{inset-inline-end:-14px}
+.fact{display:grid;gap:10px}
+.fact .big{font-family:var(--display);font-size:3.4rem;line-height:1;color:var(--melon)}
+.water{height:46px;border-radius:12px;background:var(--surface2);overflow:hidden;position:relative;border:2px solid var(--line)}
+.water .fill{height:100%;width:0;background:linear-gradient(to left,var(--rind),var(--melon));transition:width 1.6s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;padding-inline:12px;color:#fff;font-weight:800;white-space:nowrap}
+.water.on .fill{width:92%}
+.chk{display:grid;gap:8px}
+.chk label{display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:12px;cursor:pointer;font-weight:500}
+.chk input{width:22px;height:22px;accent-color:var(--rind)}
+.rate{display:flex;gap:8px;flex-wrap:wrap}
+.rate button{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer}
+.rate button[aria-pressed="true"]{border-color:var(--melon);background:var(--melon-soft)}
+.stamp{justify-self:start;border:3px solid var(--melon);color:var(--melon);border-radius:12px;padding:4px 16px;font-family:var(--display);font-size:1.4rem;transform:rotate(-4deg);animation:pop .5s both}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app" dir="rtl" lang="ar">
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 200 110" aria-hidden="true"><path d="M5 10A95 95 0 0 0 195 10Z" fill="var(--rind)"/><path d="M16 10A84 84 0 0 0 184 10Z" fill="var(--melon)"/></svg>
+    الطرح مع الأصفار
+  </div>
+  <nav class="tabs" role="tablist" aria-label="أقسام الصفحة">
+    <button class="tab-btn" role="tab" id="tabbtn-lesson" data-tab="lesson" aria-selected="true">الدرس</button>
+    <button class="tab-btn" role="tab" id="tabbtn-quiz" data-tab="quiz" aria-selected="false">المسابقة</button>
+    <button class="tab-btn" role="tab" id="tabbtn-exit" data-tab="exit" aria-selected="false">بطاقة الخروج</button>
+  </nav>
+</div></header>
+
+<main class="wrap">
+<!-- LESSON -->
+<section id="tab-lesson" class="stack">
+  <div class="card hero">
+    <div>
+      <div class="eyebrow">الفصل الثالث: الطرح · الدرس ٣-٥ · الصف الثالث</div>
+      <h1>الطرح مع وجود الأصفار</h1>
+      <p class="lead">فكرة الدرس: أطرح أعدادًا فيها أصفار، وأعيد التجميع أكثر من مرة عند الحاجة.</p>
+    </div>
+    <svg viewBox="0 0 200 110" role="img" aria-label="شريحة بطيخ">
+      <path d="M5 10A95 95 0 0 0 195 10Z" fill="var(--rind)"/>
+      <path d="M12 10A88 88 0 0 0 188 10Z" fill="var(--rind-soft)"/>
+      <path d="M17 10A83 83 0 0 0 183 10Z" fill="var(--melon)"/>
+      <g fill="var(--fg)"><ellipse cx="62" cy="40" rx="4" ry="7" transform="rotate(-20 62 40)"/><ellipse cx="100" cy="55" rx="4" ry="7"/><ellipse cx="138" cy="40" rx="4" ry="7" transform="rotate(20 138 40)"/><ellipse cx="82" cy="75" rx="4" ry="7" transform="rotate(-10 82 75)"/><ellipse cx="120" cy="75" rx="4" ry="7" transform="rotate(10 120 75)"/></g>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">أستعد</div>
+    <h2 class="sec-title">كم يزيد وزن الحمولة الأولى؟</h2>
+    <p>كتلة حمولة بطيخ <b>٣٠٠ كجم</b>، وكتلة حمولة أخرى <b>١٣٤ كجم</b>. ما الفرق بين كتلتيهما؟</p>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-lab">الحمولة الأولى: ٣٠٠ كجم</div><div class="bar"><div class="seg a" style="width:100%">٣٠٠</div></div></div>
+      <div class="bar-row"><div class="bar-lab">الحمولة الثانية: ١٣٤ كجم</div><div class="bar"><div class="seg b" style="width:44.67%">١٣٤</div><div class="seg q" id="diffSeg" style="width:55.33%">الفرق = ؟</div></div></div>
+    </div>
+    <div class="ctrls"><button class="btn melon" id="revealDiff">اكشف الفرق</button></div>
+    <div class="reveal-ans" id="diffAns" hidden>الفرق ١٦٦ كجم. لنعرف كيف وصلنا إلى هذا الناتج، انزل إلى الشرح خطوة بخطوة.</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">فكرة مهمة</div>
+    <h2 class="sec-title">لماذا نعيد التجميع؟</h2>
+    <p class="lead">أحيانًا لا يكفي الرقم العلوي في منزلة ما. عندها نفتح منزلة أكبر ونحوّلها إلى منزلة أصغر. اضغط وشاهد:</p>
+    <div class="split-grid" style="margin-top:14px">
+      <div class="demo">
+        <div class="st" id="st1"><i class="blk h big"></i></div>
+        <div class="cap" id="cap1">١ مئة</div>
+        <button class="btn" id="b1">فتّح المئة إلى عشرات</button>
+      </div>
+      <div class="demo">
+        <div class="st" id="st2"><i class="blk t"></i></div>
+        <div class="cap" id="cap2">١ عشرة</div>
+        <button class="btn" id="b2">فتّح العشرة إلى آحاد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">خطوة بخطوة</div>
+    <h2 class="sec-title">أطرح مع وجود الأصفار</h2>
+    <p class="lead">اختر مثالًا، ثم اضغط «التالي» أو «تشغيل». المربع الأحمر مئة، والعمود الأخضر عشرة، والنقطة الصفراء واحد.</p>
+    <div class="chips" id="chips" role="group" aria-label="أمثلة"></div>
+    <div class="stepper">
+      <div><div class="vgrid" id="stage"></div></div>
+      <div>
+        <div class="narr" id="narr" aria-live="polite"></div>
+        <div class="stepcount" id="stepcount"></div>
+        <div class="dots" id="dots"></div>
+        <div class="ctrls">
+          <button class="btn ghost" id="prev">السابق</button>
+          <button class="btn" id="next">التالي</button>
+          <button class="btn melon" id="play">تشغيل</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:18px;border-top:1px dashed var(--line);padding-top:14px">
+      <b>جرّب مثالك الخاص</b>
+      <div class="custom">
+        <input id="cA" type="number" inputmode="numeric" min="100" max="999" value="600" aria-label="العدد الأكبر">
+        <span aria-hidden="true">−</span>
+        <input id="cB" type="number" inputmode="numeric" min="1" max="998" value="248" aria-label="العدد الأصغر">
+        <button class="btn ghost" id="cGo">اعرض الحل</button>
+      </div>
+      <div class="msg-err" id="cMsg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec-title">أتذكّر</h2>
+    <div class="rules">
+      <div class="rule-card"><b>١. أعيد التجميع</b><span>إذا لم يكفِ الرقم العلوي، آخذ من المنزلة الأكبر بجانبه.</span></div>
+      <div class="rule-card"><b>٢. أطرح بالترتيب</b><span>الآحاد أولًا، ثم العشرات، ثم المئات.</span></div>
+      <div class="rule-card"><b>٣. أتحقق بالجمع</b><span>الناتج + العدد المطروح = العدد الأول.</span></div>
+    </div>
+    <div class="cta"><button class="btn melon" data-goto="quiz">ابدأ المسابقة</button></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="tab-quiz" hidden>
+  <div class="quiz-grid">
+    <div class="card" id="quizMain"></div>
+    <div class="card board" id="board"></div>
+  </div>
+</section>
+
+<!-- EXIT TICKET -->
+<section id="tab-exit" hidden>
+  <div class="ticket">
+    <div class="t-top">
+      <h2>بطاقة الخروج</h2>
+      <input id="exitName" type="text" placeholder="اسم الطالب" aria-label="اسم الطالب">
+    </div>
+    <div class="t-body">
+      <div class="fact">
+        <div class="eyebrow">معلومة شيّقة</div>
+        <div class="big">٩٢٪</div>
+        <p>حبة البطيخ تتكوّن من نحو ٩٢٪ ماء، ولهذا هي منعشة جدًا في الصيف.</p>
+        <div class="water" id="water"><div class="fill">٩٢ جزءًا ماء من كل ١٠٠</div></div>
+      </div>
+      <div class="chk" style="gap:10px">
+        <b>تحدٍّ سريع</b>
+        <p>من كل ١٠٠ جزء في البطيخة، ٩٢ جزءًا ماء. كم جزءًا ليس ماءً؟</p>
+        <div class="ctrls" style="margin:0"><button class="btn ghost" id="exitReveal">أعرض الحل</button></div>
+        <div class="reveal-ans" id="exitAns" hidden>نطرح <bdi dir="ltr">١٠٠ − ٩٢</bdi>. نعيد تجميع المئة إلى ٩ عشرات و١٠ آحاد، ثم نطرح: <bdi dir="ltr">١٠ − ٢ = ٨</bdi> و <bdi dir="ltr">٩ − ٩ = ٠</bdi>. الناتج ٨ أجزاء.</div>
+      </div>
+      <div class="perf"></div>
+      <div class="chk">
+        <b>اليوم تعلّمت أنني أستطيع أن…</b>
+        <label><input type="checkbox" class="ck"> أعيد التجميع عندما يكون في المنزلة صفر</label>
+        <label><input type="checkbox" class="ck"> أطرح الآحاد ثم العشرات ثم المئات</label>
+        <label><input type="checkbox" class="ck"> أتحقق من ناتج الطرح بالجمع</label>
+      </div>
+      <div class="chk">
+        <b>كيف أشعر تجاه الدرس؟</b>
+        <div class="rate" id="rate">
+          <button data-r="a" aria-pressed="false">أتقنته</button>
+          <button data-r="b" aria-pressed="false">أحتاج إلى تدريب</button>
+          <button data-r="c" aria-pressed="false">أحتاج إلى مساعدة</button>
+        </div>
+        <div id="rateMsg" class="empty"></div>
+      </div>
+      <div id="stampBox"></div>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+var AR='٠١٢٣٤٥٦٧٨٩';
+function ar(n){return String(n).replace(/\d/g,function(d){return AR[+d];});}
+function $(s){return document.querySelector(s);}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+function eq(a,b){return '<bdi dir="ltr">'+ar(a)+' − '+ar(b)+'</bdi>';}
+function eqr(a,b,r){return '<bdi dir="ltr">'+ar(a)+' − '+ar(b)+' = '+ar(r)+'</bdi>';}
+
+/* ---------- tabs ---------- */
+var TABS=['lesson','quiz','exit'];
+function showTab(id){
+  TABS.forEach(function(k){
+    $('#tab-'+k).hidden=(k!==id);
+    $('#tabbtn-'+k).setAttribute('aria-selected',String(k===id));
+  });
+  try{history.replaceState(null,'','#'+id);}catch(e){}
+  window.scrollTo(0,0);
+  if(id==='exit'){onExitShow();}
+}
+$$('[data-tab]').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);});});
+$$('[data-goto]').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.goto);});});
+
+/* ---------- hook ---------- */
+$('#revealDiff').addEventListener('click',function(){
+  $('#diffSeg').textContent='١٦٦';
+  $('#diffAns').hidden=false;
+});
+
+/* ---------- split demos ---------- */
+function splitDemo(btn,stage,cap,fromHTML,toHTML,toCount,capA,capB,labA,labB){
+  var open=false;
+  $(btn).addEventListener('click',function(){
+    open=!open;
+    var h='';
+    if(open){for(var i=0;i<toCount;i++){h+=toHTML.replace('class="','style="animation-delay:'+(i*70)+'ms" class="');}}
+    else{h=fromHTML;}
+    $(stage).innerHTML=h;
+    $(cap).textContent=open?capB:capA;
+    $(btn).textContent=open?labB:labA;
+  });
+}
+splitDemo('#b1','#st1','#cap1','<i class="blk h big"></i>','<i class="blk t new"></i>',10,'١ مئة','١ مئة = ١٠ عشرات','فتّح المئة إلى عشرات','أعدها مئة واحدة');
+splitDemo('#b2','#st2','#cap2','<i class="blk t"></i>','<i class="blk o new"></i>',10,'١ عشرة','١ عشرة = ١٠ آحاد','فتّح العشرة إلى آحاد','أعدها عشرة واحدة');
+
+/* ---------- stepper ---------- */
+function buildSteps(a,b){
+  var h=Math.floor(a/100),t=Math.floor(a/10)%10,o=a%10;
+  var bh=Math.floor(b/100),bt=Math.floor(b/10)%10,bo=b%10;
+  var res=[null,null,null],steps=[],prev={h:h,t:t,o:o};
+  function snap(msg,tag,sub,fin){
+    var cur={h:h,t:t,o:o},was={};
+    ['h','t','o'].forEach(function(k){if(prev[k]!==cur[k]){was[k]=prev[k];}});
+    steps.push({h:h,t:t,o:o,res:res.slice(),msg:msg,tag:tag,was:was,sub:sub||null,final:!!fin});
+    prev=cur;
+  }
+  snap('نريد أن نجد '+eq(a,b)+'. نبدأ بمنزلة الآحاد.','أبدأ');
+  if(o<bo){
+    if(t===0){
+      h--;t+=10;
+      snap('لا أستطيع طرح '+ar(bo)+' آحاد من '+ar(o)+'، ولا توجد عشرات لأعيد تجميعها. أعيد تجميع مئة واحدة إلى ١٠ عشرات.','أعيد التجميع');
+      t--;o+=10;
+      snap('الآن أعيد تجميع عشرة واحدة إلى ١٠ آحاد، فيصير في الآحاد '+ar(o)+' وفي العشرات '+ar(t)+'.','أعيد التجميع');
+    }else{
+      t--;o+=10;
+      snap('لا أستطيع طرح '+ar(bo)+' آحاد من '+ar(o-10)+'. أعيد تجميع عشرة واحدة إلى ١٠ آحاد، فيصير في الآحاد '+ar(o)+'.','أعيد التجميع');
+    }
+  }
+  res[2]=o-bo;
+  snap('أطرح الآحاد: '+eqr(o,bo,res[2]),'أطرح',{col:'o',n:bo});
+  if(t<bt){
+    var before=t;h--;t+=10;
+    snap('لا أستطيع طرح '+ar(bt)+' عشرات من '+ar(before)+'. أعيد تجميع مئة واحدة إلى ١٠ عشرات، فيصير في العشرات '+ar(t)+'.','أعيد التجميع');
+  }
+  res[1]=t-bt;
+  snap('أطرح العشرات: '+eqr(t,bt,res[1]),'أطرح',{col:'t',n:bt});
+  res[0]=h-bh;
+  snap('أطرح المئات: '+eqr(h,bh,res[0]),'أطرح',{col:'h',n:bh});
+  snap('إذن الناتج هو <b>'+ar(a-b)+'</b>. أتحقق بالجمع: <bdi dir="ltr">'+ar(a-b)+' + '+ar(b)+' = '+ar(a)+'</bdi>','الناتج',null,true);
+  return steps;
+}
+var cur={a:300,b:134},steps=[],si=0,timer=null;
+var PRE=[[300,134],[500,317],[400,256],[402,77],[208,68],[200,27]];
+function renderChips(){
+  $('#chips').innerHTML=PRE.map(function(p){
+    var on=(p[0]===cur.a&&p[1]===cur.b);
+    return '<button class="chip" data-a="'+p[0]+'" data-b="'+p[1]+'" aria-pressed="'+on+'">'+eq(p[0],p[1])+'</button>';
+  }).join('');
+}
+function renderStage(){
+  var s=steps[si],p=si>0?steps[si-1]:null;
+  var K=['o','t','h'],IDX={h:0,t:1,o:2},NM={h:'المئات',t:'العشرات',o:'الآحاد'};
+  var bd=[Math.floor(cur.b/100),Math.floor(cur.b/10)%10,cur.b%10];
+  var head='',blocks='',top='',sub='',res='';
+  K.forEach(function(k){
+    var i=IDX[k];
+    var flash=(s.was[k]!==undefined)?' flash':'';
+    head+='<div class="hd '+k+flash+'">'+NM[k]+'</div>';
+    var done=(s.res[i]!==null&&!(s.sub&&s.sub.col===k));
+    var count=done?s.res[i]:s[k];
+    var prevCount=null;
+    if(p){var pd=(p.res[i]!==null&&!(p.sub&&p.sub.col===k));prevCount=pd?p.res[i]:p[k];}
+    var gone=(s.sub&&s.sub.col===k)?s.sub.n:0;
+    var items='';
+    for(var j=0;j<count;j++){
+      var isNew=prevCount!==null&&count>prevCount&&j>=prevCount;
+      items+='<i class="blk '+k+(isNew?' new':'')+(j<gone?' gone':'')+'"></i>';
+    }
+    blocks+='<div class="bl '+k+(done?' done':'')+'">'+(items||'<span class="zero">٠</span>')+'</div>';
+    var was=(s.was[k]!==undefined)?'<span class="was">'+ar(s.was[k])+'</span>':'';
+    top+='<div class="dg'+flash+'">'+was+'<span>'+ar(s[k])+'</span></div>';
+    var hide=(i===0&&cur.b<100)||(i===1&&cur.b<10);
+    sub+='<div class="dg">'+(hide?'':ar(bd[i]))+'</div>';
+    var r='';
+    if(s.res[i]!==null){
+      var fresh=(!p||p.res[i]===null);
+      r=(i===0&&s.final&&s.res[0]===0)?'':'<span class="'+(fresh?'pop':'')+'">'+ar(s.res[i])+'</span>';
+    }
+    res+='<div class="dg resd">'+r+'</div>';
+  });
+  var g=$('#stage');
+  g.className='vgrid'+(s.final?' final':'');
+  g.innerHTML=head+'<div></div>'+blocks+'<div></div>'+top+'<div></div>'+sub+'<div class="dg sign">−</div><div class="rule"></div>'+res+'<div></div>';
+  $('#narr').innerHTML='<span class="tag">'+s.tag+'</span>'+s.msg;
+  $('#stepcount').textContent='الخطوة '+ar(si+1)+' من '+ar(steps.length);
+  $('#dots').innerHTML=steps.map(function(_,i){return '<button class="dot'+(i===si?' on':(i<si?' past':''))+'" data-i="'+i+'" aria-label="الخطوة '+ar(i+1)+'"></button>';}).join('');
+  $('#prev').disabled=(si===0);
+  $('#next').disabled=(si===steps.length-1);
+  $('#play').textContent=timer?'إيقاف':'تشغيل';
+}
+function stopPlay(){if(timer){clearInterval(timer);timer=null;}}
+function loadExample(a,b){
+  stopPlay();cur={a:a,b:b};steps=buildSteps(a,b);si=0;renderChips();renderStage();
+}
+$('#chips').addEventListener('click',function(e){
+  var c=e.target.closest('.chip');if(!c)return;
+  loadExample(+c.dataset.a,+c.dataset.b);
+});
+$('#dots').addEventListener('click',function(e){
+  var d=e.target.closest('.dot');if(!d)return;
+  stopPlay();si=+d.dataset.i;renderStage();
+});
+$('#prev').addEventListener('click',function(){stopPlay();if(si>0){si--;}renderStage();});
+$('#next').addEventListener('click',function(){stopPlay();if(si<steps.length-1){si++;}renderStage();});
+$('#play').addEventListener('click',function(){
+  if(timer){stopPlay();renderStage();return;}
+  if(si>=steps.length-1){si=0;}
+  renderStage();
+  timer=setInterval(function(){
+    if(si<steps.length-1){si++;renderStage();}
+    else{stopPlay();renderStage();}
+  },2800);
+  $('#play').textContent='إيقاف';
+});
+$('#cGo').addEventListener('click',function(){
+  var a=parseInt($('#cA').value,10),b=parseInt($('#cB').value,10);
+  if(!(a>=100&&a<=999&&b>=1&&b<a)){
+    $('#cMsg').textContent='اكتب عددين: الأول من ١٠٠ إلى ٩٩٩، والثاني أكبر من صفر وأصغر من الأول.';
+    return;
+  }
+  $('#cMsg').textContent='';
+  loadExample(a,b);
+});
+
+/* ---------- quiz ---------- */
+var fbAbs='يبدو أن الرقم الأصغر طُرح من الأكبر في كل منزلة. في الطرح نُنقص الرقم السفلي من العلوي دائمًا، وإذا لم يكفِ الرقم العلوي أعدنا التجميع.';
+var fbH='يبدو أن المئات لم تنقص بعد إعادة التجميع. حين نأخذ مئة واحدة تصير المئات أقل بواحد.';
+var fbT='يبدو أن العشرات لم تنقص بعد إعادة التجميع. حين نأخذ عشرة واحدة لتصير ١٠ آحاد، تصير العشرات ٩ بدل ١٠.';
+var QS=[
+ {k:'vert',a:400,b:256,opts:[{t:'144',ok:1},{t:'256',fb:fbAbs},{t:'244',fb:fbH},{t:'154',fb:fbT}],
+  sol:'نعيد تجميع 400 إلى 3 مئات و9 عشرات و10 آحاد. ثم نطرح: {{10 − 6 = 4}} و {{9 − 5 = 4}} و {{3 − 2 = 1}}. الناتج 144. نتحقق: {{144 + 256 = 400}}.'},
+ {k:'vert',a:500,b:317,opts:[{t:'183',ok:1},{t:'217',fb:fbAbs},{t:'283',fb:fbH},{t:'193',fb:fbT}],
+  sol:'نعيد تجميع 500 إلى 4 مئات و9 عشرات و10 آحاد. ثم نطرح: {{10 − 7 = 3}} و {{9 − 1 = 8}} و {{4 − 3 = 1}}. الناتج 183. نتحقق: {{183 + 317 = 500}}.'},
+ {k:'vert',a:402,b:77,opts:[{t:'325',ok:1},{t:'475',fb:fbAbs},{t:'425',fb:fbH},{t:'335',fb:fbT}],
+  sol:'لا توجد عشرات، فنعيد تجميع مئة إلى 10 عشرات: 3 مئات و10 عشرات و2 آحاد. ثم نعيد تجميع عشرة إلى 10 آحاد: 3 مئات و9 عشرات و12 آحادًا. نطرح: {{12 − 7 = 5}} و {{9 − 7 = 2}} و {{3 − 0 = 3}}. الناتج 325.'},
+ {k:'word',a:200,b:27,text:'كان في محفظة علي 200 ريال، أنفق منها 27 ريالًا. كم ريالًا بقي معه؟',opts:[{t:'173',ok:1},{t:'227',fb:fbAbs},{t:'273',fb:fbH},{t:'183',fb:fbT}],
+  sol:'نعيد تجميع 200 إلى مئة واحدة و9 عشرات و10 آحاد. نطرح: {{10 − 7 = 3}} و {{9 − 2 = 7}} و {{1 − 0 = 1}}. بقي معه 173 ريالًا.'},
+ {k:'pick',text:'أحدد جملة الطرح غير الصحيحة:',opts:[
+   {t:'207 − 113 = 94',fb:'هذه الجملة صحيحة. نتحقق بالجمع: {{94 + 113 = 207}}.'},
+   {t:'500 − 374 = 126',fb:'هذه الجملة صحيحة. نتحقق بالجمع: {{126 + 374 = 500}}.'},
+   {t:'850 − 464 = 486',ok:1},
+   {t:'109 − 68 = 41',fb:'هذه الجملة صحيحة. نتحقق بالجمع: {{41 + 68 = 109}}.'}],
+  sol:'نتحقق بالجمع: {{486 + 464 = 950}} وليس 850. الناتج الصحيح هو 386، لأن {{386 + 464 = 850}}.'},
+ {k:'vert',a:700,b:385,opts:[{t:'315',ok:1},{t:'485',fb:fbAbs},{t:'415',fb:fbH},{t:'325',fb:fbT}],
+  sol:'نعيد تجميع 700 إلى 6 مئات و9 عشرات و10 آحاد. ثم نطرح: {{10 − 5 = 5}} و {{9 − 8 = 1}} و {{6 − 3 = 3}}. الناتج 315. نتحقق: {{315 + 385 = 700}}.'},
+ {k:'word',text:'قطف مزارع 208 ثمرة بطيخ، وزّع منها على جيرانه 32 ثمرة، وباع 169 ثمرة. فكم ثمرة بقيت لديه؟',opts:[
+   {t:'7',ok:1},
+   {t:'17',fb:'اقتربت من الحل. عند طرح {{176 − 169}} تنقص العشرات بعد إعادة التجميع فتصير 6 لا 7، وبذلك يصير ناتج العشرات صفرًا.'},
+   {t:'176',fb:'هذا ناتج الطرح الأول فقط {{208 − 32 = 176}}. بقي أن نطرح 169 أيضًا.'},
+   {t:'240',fb:'يبدو أن العددين جُمعا. كلمتا «وزّع» و«باع» تعنيان أن العدد ينقص، فنطرح.'}],
+  sol:'نطرح مرتين: {{208 − 32 = 176}} ثم {{176 − 169 = 7}}. بقيت 7 ثمرات.'},
+ {k:'word',a:200,b:137,text:'تريد معلمة أن تُهدي طالباتها 200 كتاب. كم كتابًا تحتاج إذا كان لديها 137 كتابًا؟',opts:[{t:'63',ok:1},{t:'137',fb:fbAbs+' الناتج هنا يساوي العدد الذي لدى المعلمة، وهذا يستدعي التحقق بالجمع.'},{t:'163',fb:fbH},{t:'73',fb:fbT}],
+  sol:'نعيد تجميع 200 إلى مئة واحدة و9 عشرات و10 آحاد. نطرح: {{10 − 7 = 3}} و {{9 − 3 = 6}} و {{1 − 1 = 0}}. تحتاج 63 كتابًا. نتحقق: {{63 + 137 = 200}}.'}
+];
+function fmt(s){return ar(s.replace(/\{\{(.+?)\}\}/g,'<bdi dir="ltr">$1</bdi>'));}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+var BKEY='sub0-board-v1',memBoard=[];
+function loadBoard(){try{var r=localStorage.getItem(BKEY);if(r){return JSON.parse(r)||[];}}catch(e){}return memBoard;}
+function saveBoard(b){memBoard=b;try{localStorage.setItem(BKEY,JSON.stringify(b));}catch(e){}}
+function sortedBoard(){return loadBoard().slice().sort(function(x,y){return y.score-x.score||x.ts-y.ts;});}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+var Q={screen:'name',name:'',i:0,score:0,streak:0,correct:0,miss:[],opts:[],chosen:-1,last:null,lastTs:0,rank:0};
+var resetArm=false,resetTimer=null;
+
+function startQ(){Q.opts=shuffle(QS[Q.i].opts);Q.chosen=-1;Q.last=null;}
+function renderQuiz(){
+  var m=$('#quizMain');
+  if(Q.screen==='name'){
+    m.innerHTML='<div class="eyebrow">مسابقة الطرح</div><h2 class="sec-title">من سيجمع أكبر عدد من النقاط؟</h2>'+
+      '<p class="lead">ثمانية أسئلة. كل إجابة صحيحة بعشر نقاط، وتحصل على خمس نقاط إضافية عند ثلاث إجابات صحيحة متتالية. إذا أخطأت ستظهر لك ملاحظة تساعدك.</p>'+
+      '<form id="nameForm" class="field"><label for="stName"><b>اسم الطالب</b></label><input id="stName" type="text" maxlength="30" autocomplete="off" placeholder="اكتب اسمك هنا" value="'+esc(Q.name)+'"><div class="row-btns" style="justify-content:flex-start"><button class="btn melon" type="submit">ابدأ</button></div><div class="msg-err" id="nameErr"></div></form>';
+    $('#nameForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      var n=$('#stName').value.trim();
+      if(!n){$('#nameErr').textContent='اكتب اسم الطالب أولًا.';return;}
+      Q={screen:'play',name:n,i:0,score:0,streak:0,correct:0,miss:[],opts:[],chosen:-1,last:null,lastTs:0,rank:0};
+      startQ();renderQuiz();
+    });
+    return;
+  }
+  if(Q.screen==='play'){
+    var q=QS[Q.i],answered=Q.chosen>=0;
+    var body='';
+    if(q.k==='vert'){
+      body='<p class="qlead">أجد ناتج الطرح، ثم أتحقق من إجابتي:</p><div class="vq" dir="ltr"><div class="r"><span></span><span>'+ar(q.a)+'</span></div><div class="r"><span class="mi">−</span><span>'+ar(q.b)+'</span></div><div class="ln"></div><div class="r"><span></span><span class="qm">؟</span></div></div>';
+    }else{
+      body='<p class="qlead">'+fmt(q.text)+'</p>';
+      if(q.k==='word'&&q.a){body+='<div class="vq" dir="ltr" style="font-size:1.8rem"><span>'+ar(q.a)+' − '+ar(q.b)+' = ؟</span></div>';}
+    }
+    var ob=Q.opts.map(function(o,i){
+      var cls='opt';
+      if(answered){if(o.ok){cls+=' ok';}else if(i===Q.chosen){cls+=' no';}}
+      return '<button class="'+cls+'" data-i="'+i+'"'+(answered?' disabled':'')+'><bdi dir="ltr">'+ar(o.t)+'</bdi></button>';
+    }).join('');
+    var fb='';
+    if(answered){
+      if(Q.last.ok){
+        fb='<div class="fb good"><h3>أحسنت! +'+ar(Q.last.pts)+' نقطة</h3><div>'+(Q.last.bonus?'مكافأة التتابع: +٥ نقاط. ':'')+'إجابة صحيحة.</div><div class="sol">'+fmt(q.sol)+'</div></div>';
+      }else{
+        fb='<div class="fb bad"><h3>ليست هذه الإجابة، والخطأ فرصة للتعلّم</h3><div>'+fmt(Q.opts[Q.chosen].fb||'راجع الخطوات وتحقق بالجمع.')+'</div><div class="sol"><b>الحل الصحيح:</b> '+fmt(q.sol)+'</div></div>';
+      }
+      fb+='<div class="row-btns" style="margin-top:14px;justify-content:flex-start"><button class="btn melon" id="nextQ">'+(Q.i===QS.length-1?'اعرض نتيجتي':'السؤال التالي')+'</button></div>';
+    }
+    m.innerHTML='<div class="qhead"><span>'+esc(Q.name)+'</span><span>السؤال '+ar(Q.i+1)+' من '+ar(QS.length)+'</span><span class="pill">النقاط: '+ar(Q.score)+'</span>'+(Q.streak>=2?'<span class="pill">تتابع ×'+ar(Q.streak)+'</span>':'')+'</div>'+
+      '<div class="prog"><i style="width:'+((Q.i+(answered?1:0))/QS.length*100)+'%"></i></div>'+body+'<div class="opts">'+ob+'</div>'+fb;
+    return;
+  }
+  if(Q.screen==='done'){
+    var stars=Q.correct>=7?3:(Q.correct>=5?2:1);
+    var sv='';
+    for(var s=0;s<3;s++){sv+='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z" fill="'+(s<stars?'var(--sun)':'var(--line)')+'"/></svg>';}
+    var msg=Q.correct>=7?'رائع! إتقانك للطرح مع الأصفار ممتاز.':(Q.correct>=5?'جيد جدًا! راجع الخطوات في الأسئلة التي ظهرت لك فيها ملاحظات.':'بداية جيدة. شاهد شرح الدرس مرة أخرى ثم أعد المحاولة.');
+    var miss=Q.miss.length?'<div class="miss"><b>أسئلة أستفيد منها:</b>'+Q.miss.map(function(x){return '<div>السؤال '+ar(x.n)+': '+fmt(x.sol)+'</div>';}).join('')+'</div>':'';
+    m.innerHTML='<div class="done-box"><div class="eyebrow">انتهت المسابقة</div><h2 class="sec-title">'+esc(Q.name)+'</h2><div class="big-score">'+ar(Q.score)+'</div><div>نقطة · '+ar(Q.correct)+' من '+ar(QS.length)+' إجابات صحيحة</div><div class="stars">'+sv+'</div><p>'+msg+'</p><p>ترتيبك الآن: <b>'+ar(Q.rank)+'</b> من '+ar(loadBoard().length)+'</p>'+miss+
+      '<div class="row-btns"><button class="btn melon" id="newStudent">طالب جديد</button><button class="btn ghost" id="toLesson">راجع الدرس</button><button class="btn ghost" id="toExit">بطاقة الخروج</button></div></div>';
+  }
+}
+function renderBoard(){
+  var b=sortedBoard(),h='<h2>لوحة الصدارة</h2>';
+  if(!b.length){
+    h+='<div class="empty">لا توجد نتائج بعد. أول طالب ينهي المسابقة يظهر هنا.</div>';
+  }else{
+    h+='<div class="leader">المتصدر الآن: '+esc(b[0].name)+' · '+ar(b[0].score)+' نقطة</div><ol class="rows">';
+    b.slice(0,10).forEach(function(r,i){
+      h+='<li'+(r.ts===Q.lastTs&&Q.screen==='done'?' class="me"':'')+'><span class="rk r'+(i+1)+'">'+ar(i+1)+'</span><span class="nm">'+esc(r.name)+'</span><span class="sc">'+ar(r.score)+'</span></li>';
+    });
+    h+='</ol>';
+  }
+  h+='<div class="row-btns" style="margin-top:14px;justify-content:flex-start"><button class="btn ghost" id="resetBoard">'+(resetArm?'اضغط مرة أخرى للتأكيد':'مسح اللوحة')+'</button></div>';
+  $('#board').innerHTML=h;
+}
+function finishQuiz(){
+  var b=loadBoard(),ts=Date.now();
+  b.push({name:Q.name,score:Q.score,correct:Q.correct,ts:ts});
+  saveBoard(b);
+  Q.lastTs=ts;
+  var s=sortedBoard();
+  for(var i=0;i<s.length;i++){if(s[i].ts===ts){Q.rank=i+1;break;}}
+  Q.screen='done';
+}
+$('#quizMain').addEventListener('click',function(e){
+  var o=e.target.closest('.opt');
+  if(o&&Q.screen==='play'&&Q.chosen<0){
+    var idx=+o.dataset.i,opt=Q.opts[idx];
+    Q.chosen=idx;
+    if(opt.ok){
+      Q.streak++;Q.correct++;
+      var bonus=Q.streak>=3;
+      var pts=10+(bonus?5:0);
+      Q.score+=pts;Q.last={ok:true,pts:pts,bonus:bonus};
+    }else{
+      Q.streak=0;Q.last={ok:false};
+      Q.miss.push({n:Q.i+1,sol:QS[Q.i].sol});
+    }
+    renderQuiz();renderBoard();
+    return;
+  }
+  if(e.target.id==='nextQ'){
+    if(Q.i<QS.length-1){Q.i++;startQ();}else{finishQuiz();}
+    renderQuiz();renderBoard();window.scrollTo(0,0);
+    return;
+  }
+  if(e.target.id==='newStudent'){Q.screen='name';Q.name='';renderQuiz();renderBoard();return;}
+  if(e.target.id==='toLesson'){showTab('lesson');return;}
+  if(e.target.id==='toExit'){showTab('exit');return;}
+});
+$('#board').addEventListener('click',function(e){
+  if(e.target.id!=='resetBoard')return;
+  if(!resetArm){
+    resetArm=true;renderBoard();
+    clearTimeout(resetTimer);
+    resetTimer=setTimeout(function(){resetArm=false;renderBoard();},3500);
+  }else{
+    resetArm=false;clearTimeout(resetTimer);saveBoard([]);renderBoard();
+  }
+});
+
+/* ---------- exit ticket ---------- */
+function onExitShow(){
+  if(Q.name&&!$('#exitName').value){$('#exitName').value=Q.name;}
+  var w=$('#water');w.classList.remove('on');
+  setTimeout(function(){w.classList.add('on');},120);
+}
+$('#exitReveal').addEventListener('click',function(){$('#exitAns').hidden=false;});
+function updateStamp(){
+  var all=$$('.ck').every(function(c){return c.checked;});
+  var rated=$$('#rate button').some(function(b){return b.getAttribute('aria-pressed')==='true';});
+  $('#stampBox').innerHTML=(all&&rated)?'<div class="stamp">جاهز للانطلاق</div>':'';
+}
+$$('.ck').forEach(function(c){c.addEventListener('change',updateStamp);});
+$('#rate').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  $$('#rate button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+  var M={a:'ممتاز! جرّب أن تشرح الطريقة لزميل.',b:'لا بأس. أعد مسابقة الطرح وانتبه إلى ملاحظات الأخطاء.',c:'اطلب من معلمك مثالًا آخر، وشاهد الشرح خطوة بخطوة.'};
+  $('#rateMsg').textContent=M[b.dataset.r];
+  updateStamp();
+});
+
+/* ---------- init ---------- */
+loadExample(300,134);
+renderQuiz();renderBoard();
+var hv=(location.hash||'').replace('#','');
+if(TABS.indexOf(hv)>-1){showTab(hv);}
+})();
+</script>
+
+</body></html>
